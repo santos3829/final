@@ -14,49 +14,72 @@ const Contact = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    const mobileRegex = /^\d{10}$/;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (!mobileRegex.test(formData.mobile)) {
-      toast({
-        title: "Invalid mobile number",
-        description: "Please enter a valid 10-digit mobile number.",
-        variant: "destructive",
-      });
-      return;
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Invalid email address",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const mobileRegex = /^\d{10}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    setIsLoading(true);
-  
-    try {
-      const response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-form/submit-form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        toast({
-          title: "Error",
-          description: errorData.error || "Something went wrong!",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
+  if (!mobileRegex.test(formData.mobile)) {
+    toast({
+      title: "Invalid mobile number",
+      description: "Please enter a valid 10-digit mobile number.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  if (!emailRegex.test(formData.email)) {
+    toast({
+      title: "Invalid email address",
+      description: "Please enter a valid email address.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-form`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      let errorData = {};
+      try {
+        errorData = await response.json();
+      } catch (err) {
+        console.error("Error parsing error response:", err);
       }
+      toast({
+        title: "Error",
+        description: errorData.error || "Something went wrong!",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    toast({
+      title: "Message sent!",
+      description: "We'll get back to you as soon as possible.",
+    });
+    setFormData({ name: "", email: "", mobile: "", subject: "", message: "" });
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Unable to submit the form. Please try again later.",
+      variant: "destructive",
+    });
+    console.error("Form submission error:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   
       toast({
         title: "Message sent!",
