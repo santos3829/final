@@ -1,6 +1,10 @@
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Phone, Mail, MapPin, Github, Linkedin, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+// Fetch backend URL from .env
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +19,6 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate mobile number
     const mobileRegex = /^\d{10}$/;
     if (!mobileRegex.test(formData.mobile)) {
       toast({
@@ -27,9 +30,6 @@ const Contact = () => {
     }
 
     try {
-      // Fetch API URL from environment variable
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
       const response = await fetch(`${backendUrl}/submit-form`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,47 +61,93 @@ const Contact = () => {
     }
   };
 
+  const contactInfo = [
+    {
+      icon: Phone,
+      label: "Call Us",
+      value: "+91-8000781301",
+      link: "tel:+91-8000781301",
+    },
+    {
+      icon: Mail,
+      label: "Email Us",
+      value: "readigital@gmail.com",
+      link: "mailto:readigital@gmail.com",
+    },
+    {
+      icon: MapPin,
+      label: "Visit Us",
+      value: "B 66/67 Digital Street, Ahmedabad City, India",
+      link: "https://maps.google.com",
+    },
+  ];
+
+  const socialLinks = [
+    { icon: Github, link: "https://github.com", label: "GitHub" },
+    { icon: Linkedin, link: "https://linkedin.com", label: "LinkedIn" },
+    { icon: Twitter, link: "https://twitter.com", label: "Twitter" },
+  ];
+
   return (
-    <section>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-        />
-        <input
-          type="tel"
-          placeholder="Mobile"
-          value={formData.mobile}
-          onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Subject"
-          value={formData.subject}
-          onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-          required
-        />
-        <textarea
-          placeholder="Message"
-          value={formData.message}
-          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-          required
-        />
-        <button type="submit">
-          Send Message <Send />
-        </button>
-      </form>
+    <section id="contact" className="section-padding bg-gradient-to-b from-secondary to-accent relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_50%,#1a1a1a,transparent)] animate-pulse opacity-50" />
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-12">
+          <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm mb-4">
+            Get in Touch
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-white to-primary">
+            We'd Love to Hear from You
+          </h2>
+          <p className="text-foreground/80 max-w-2xl mx-auto">We're just a call or message away!</p>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Contact Information */}
+          <div className="hidden lg:block space-y-8">
+            {contactInfo.map((item, index) => (
+              <a key={index} href={item.link} className="block p-6 rounded-lg glass-card hover-glow transition-all duration-300">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-primary/10 text-primary">
+                    <item.icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">{item.label}</h3>
+                    <p className="text-foreground/80">{item.value}</p>
+                  </div>
+                </div>
+              </a>
+            ))}
+            <div className="flex justify-center gap-4 pt-4">
+              {socialLinks.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-full bg-primary/10 text-primary hover:scale-110 hover:bg-primary/20 transition-all duration-300"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-6 h-6" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact Form */}
+          <div>
+            <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6 md:p-8 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Input fields */}
+                {/* ... */}
+              </div>
+              <button type="submit" className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group">
+                Send Message
+                <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </section>
   );
 };
