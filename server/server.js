@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
+// Load environment variables from .env file (for local development)
 dotenv.config();
 
 // Create Express app
@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-  origin: ['http://readigital.vercel.app'], // Local and frontend domains
+  origin: ['http://localhost:8080', 'https://readigital.vercel.app'], // Local and frontend domains
   methods: ['GET', 'POST'], // Allowed HTTP methods
   credentials: true, // Include credentials if needed
 };
@@ -22,17 +22,21 @@ app.use(express.json()); // Parses incoming JSON requests
 const mongoUri = process.env.MONGO_URI;
 
 if (!mongoUri) {
-  console.error('MONGO_URI is not defined in the .env file.');
+  console.error('MONGO_URI is not defined in the environment variables.');
   process.exit(1); // Exit the application if MONGO_URI is missing
 }
 
-mongoose
-  .connect(mongoUri)
-  .then(() => console.log('MongoDB connected!'))
-  .catch((err) => {
-    console.error('MongoDB connection error:', err.message);
-    setTimeout(() => mongoose.connect(mongoUri), 5000); // Retry after 5 seconds
-  });
+const connectWithRetry = () => {
+  console.log('MongoDB connection with retry');
+  mongoose.connect(mongoUri)
+    .then(() => console.log('MongoDB connected!'))
+    .catch((err) => {
+      console.error('MongoDB connection error:', err.message);
+      setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+    });
+};
+
+connectWithRetry();
 
 // Mongoose Schema and Model for Contact form
 const contactSchema = new mongoose.Schema({
@@ -74,5 +78,5 @@ app.post('/submit-form', async (req, res) => {
 // Start the Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
