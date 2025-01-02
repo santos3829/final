@@ -3,9 +3,6 @@ import { Send, Phone, Mail, MapPin, Github, Linkedin, Twitter } from "lucide-rea
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-// Fetch backend URL from .env
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -18,7 +15,7 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const mobileRegex = /^\d{10}$/;
     if (!mobileRegex.test(formData.mobile)) {
       toast({
@@ -28,14 +25,14 @@ const Contact = () => {
       });
       return;
     }
-
+  
     try {
-      const response = await fetch(`${backendUrl}/submit-form`, {
+      const response = await fetch("https://final-delta-three.vercel.app/submit-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         toast({
@@ -45,7 +42,7 @@ const Contact = () => {
         });
         return;
       }
-
+  
       toast({
         title: "Message sent!",
         description: "We'll get back to you as soon as possible.",
@@ -60,7 +57,8 @@ const Contact = () => {
       console.error("Form submission error:", error);
     }
   };
-
+  
+  
   const contactInfo = [
     {
       icon: Phone,
@@ -77,7 +75,7 @@ const Contact = () => {
     {
       icon: MapPin,
       label: "Visit Us",
-      value: "B 66/67 Digital Street, Ahmedabad City, India",
+      value: "B 66/67 Digital Street, Ahemdabad City, India",
       link: "https://maps.google.com",
     },
   ];
@@ -90,7 +88,9 @@ const Contact = () => {
 
   return (
     <section id="contact" className="section-padding bg-gradient-to-b from-secondary to-accent relative overflow-hidden">
+      {/* Background Animation */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_50%,#1a1a1a,transparent)] animate-pulse opacity-50" />
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm mb-4">
@@ -99,13 +99,20 @@ const Contact = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-white to-primary">
             We'd Love to Hear from You
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">We're just a call or message away!</p>
+          <p className="text-foreground/80 max-w-2xl mx-auto">
+            We're just a call or message away!
+          </p>
         </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div className="hidden lg:block space-y-8">
             {contactInfo.map((item, index) => (
-              <a key={index} href={item.link} className="block p-6 rounded-lg glass-card hover-glow transition-all duration-300">
+              <a
+                key={index}
+                href={item.link}
+                className="block p-6 rounded-lg glass-card hover-glow transition-all duration-300"
+              >
                 <div className="flex items-center gap-4">
                   <div className="p-3 rounded-full bg-primary/10 text-primary">
                     <item.icon className="w-6 h-6" />
@@ -117,6 +124,7 @@ const Contact = () => {
                 </div>
               </a>
             ))}
+
             <div className="flex justify-center gap-4 pt-4">
               {socialLinks.map((social, index) => (
                 <a
@@ -135,12 +143,86 @@ const Contact = () => {
 
           {/* Contact Form */}
           <div>
-            <form onSubmit={handleSubmit} className="space-y-6 glass-card p-6 md:p-8 rounded-lg">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6 glass-card p-6 md:p-8 rounded-lg"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Input fields */}
-                {/* ... */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="John Doe"
+                    className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="johndoe@example.com"
+                    className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                    required
+                  />
+                </div>
               </div>
-              <button type="submit" className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group">
+              <div>
+                <label htmlFor="mobile" className="block text-sm font-medium mb-2">
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  id="mobile"
+                  value={formData.mobile}
+                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                  placeholder="Enter 10-digit mobile number"
+                  className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium mb-2">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  placeholder="e.g., Website Development Query"
+                  className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  placeholder="e.g., I would like to know more about your services."
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group"
+              >
                 Send Message
                 <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
