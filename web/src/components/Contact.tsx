@@ -12,11 +12,14 @@ const Contact = () => {
     message: "",
   });
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     const mobileRegex = /^\d{10}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
     if (!mobileRegex.test(formData.mobile)) {
       toast({
         title: "Invalid mobile number",
@@ -25,6 +28,17 @@ const Contact = () => {
       });
       return;
     }
+
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Invalid email address",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
   
     try {
       const response = await fetch("https://final-delta-three.vercel.app/submit-form", {
@@ -40,6 +54,7 @@ const Contact = () => {
           description: errorData.error || "Something went wrong!",
           variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
   
@@ -55,10 +70,11 @@ const Contact = () => {
         variant: "destructive",
       });
       console.error("Form submission error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  
+
   const contactInfo = [
     {
       icon: Phone,
@@ -160,6 +176,7 @@ const Contact = () => {
                     placeholder="John Doe"
                     className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
                     required
+                    aria-required="true"
                   />
                 </div>
                 <div>
@@ -174,6 +191,7 @@ const Contact = () => {
                     placeholder="johndoe@example.com"
                     className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
                     required
+                    aria-required="true"
                   />
                 </div>
               </div>
@@ -189,6 +207,7 @@ const Contact = () => {
                   placeholder="Enter 10-digit mobile number"
                   className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
                   required
+                  aria-required="true"
                 />
               </div>
               <div>
@@ -203,6 +222,7 @@ const Contact = () => {
                   placeholder="e.g., Website Development Query"
                   className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
                   required
+                  aria-required="true"
                 />
               </div>
               <div>
@@ -217,14 +237,23 @@ const Contact = () => {
                   rows={4}
                   className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
                   required
+                  aria-required="true"
                 />
               </div>
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group"
+                className={cn(
+                  "w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group",
+                  { "opacity-50 cursor-not-allowed": isLoading }
+                )}
+                disabled={isLoading}
               >
-                Send Message
-                <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                {isLoading ? "Sending..." : (
+                  <>
+                    Send Message
+                    <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
               </button>
             </form>
           </div>
