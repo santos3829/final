@@ -41,7 +41,7 @@ const Contact = () => {
     setIsLoading(true);
   
     try {
-      const response = await fetch("https://final-delta-three.vercel.app/submit-form", {
+      const response = await fetch("${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-form/submit-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
