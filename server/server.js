@@ -10,22 +10,28 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: ['http://readigital.vercel.app'], // Local and frontend domains
+  methods: ['GET', 'POST'], // Allowed HTTP methods
+  credentials: true, // Include credentials if needed
+};
+app.use(cors(corsOptions));
 app.use(express.json()); // Parses incoming JSON requests
 
 // MongoDB Connection
 const mongoUri = process.env.MONGO_URI;
 
 if (!mongoUri) {
-  console.error("MONGO_URI is not defined in the .env file.");
+  console.error('MONGO_URI is not defined in the .env file.');
   process.exit(1); // Exit the application if MONGO_URI is missing
 }
 
-mongoose.connect(mongoUri)
-  .then(() => console.log("MongoDB connected!"))
+mongoose
+  .connect(mongoUri)
+  .then(() => console.log('MongoDB connected!'))
   .catch((err) => {
-    console.error("MongoDB connection error:", err.message);
-    process.exit(1); // Exit the application if DB connection fails
+    console.error('MongoDB connection error:', err.message);
+    setTimeout(() => mongoose.connect(mongoUri), 5000); // Retry after 5 seconds
   });
 
 // Mongoose Schema and Model for Contact form
@@ -41,7 +47,7 @@ const Contact = mongoose.model('Contact', contactSchema);
 
 // Routes
 app.get('/', (req, res) => {
-  res.send("Welcome to the backend server!");
+  res.send('Welcome to the backend server!');
 });
 
 // POST Route to Handle Form Submission
@@ -50,17 +56,18 @@ app.post('/submit-form', async (req, res) => {
 
   // Check if all fields are provided
   if (!name || !email || !mobile || !subject || !message) {
-    return res.status(400).json({ error: "All fields are required." });
+    return res.status(400).json({ error: 'All fields are required.' });
   }
 
   try {
     // Save the form data in MongoDB
     const newContact = new Contact({ name, email, mobile, subject, message });
     await newContact.save();
-    res.status(200).json({ message: "Form submitted successfully!" });
+    console.log('Form submitted successfully:', req.body); // Debug log
+    res.status(200).json({ message: 'Form submitted successfully!' });
   } catch (err) {
-    console.error("Error saving form data:", err);
-    res.status(500).json({ error: "Failed to submit the form." });
+    console.error('Error saving form data:', err);
+    res.status(500).json({ error: 'Failed to submit the form.' });
   }
 });
 
