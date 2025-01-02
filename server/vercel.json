@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",        // Your main server file (e.g., index.js or app.js)
-      "use": "@vercel/node"     // Vercel Node.js runtime
+      "src": "server.js",        
+      "use": "@vercel/node"     
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",            // This matches all incoming requests
-      "dest": "/server.js"       // Your server file
+      "src": "/(.*)",            
+      "dest": "/server.js"       
     }
   ]
 }
