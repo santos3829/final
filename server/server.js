@@ -14,6 +14,8 @@ const corsOptions = {
   origin: ['http://readigital.vercel.app'], // Local and frontend domains
   methods: ['GET', 'POST'], // Allowed HTTP methods
   credentials: true, // Include credentials if needed
+  allowedHeaders: ["Content-Type"],
+
 };
 app.use(cors(corsOptions));
 app.use(express.json()); // Parses incoming JSON requests
