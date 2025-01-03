@@ -43,6 +43,8 @@ const Contact = () => {
         }
       );
 
+      console.log(response)
+
       if (!response.ok) {
         const errorData = await response.json();
         toast({
