@@ -73,6 +73,7 @@ const handleSubmit = async (e) => {
       title: "Error",
       description: "Unable to submit the form. Please try again later.",
       variant: "destructive",
+        className: "bg-gray-900 text-red-200 border border-red-600",
     });
     console.error("Form submission error:", error);
   } finally {
