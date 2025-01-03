@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-  origin: ['https://readigital.vercel.app/'], // Local and frontend domains
+  origin: ['https://readigital.vercel.app'], // Local and frontend domains
   methods: ['GET', 'POST'], // Allowed HTTP methods
   allowedHeaders: ["Content-Type"],
 };
