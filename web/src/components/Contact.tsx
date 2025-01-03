@@ -35,7 +35,7 @@ const Contact = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/submit-form`,
+        `${import.meta.env.VITE_BACKEND_URL}/submit-form`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
