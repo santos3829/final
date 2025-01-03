@@ -12,76 +12,47 @@ const Contact = () => {
     message: "",
   });
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  // Handle Input Change
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
 
-  const mobileRegex = /^\d{10}$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Form Submission Handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!mobileRegex.test(formData.mobile)) {
-    toast({
-      title: "Invalid mobile number",
-      description: "Please enter a valid 10-digit mobile number.",
-      variant: "destructive",
-    });
-    return;
-  }
-
-  if (!emailRegex.test(formData.email)) {
-    toast({
-      title: "Invalid email address",
-      description: "Please enter a valid email address.",
-      variant: "destructive",
-    });
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/submit-form`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    if (!response.ok) {
-      let errorData = {};
-      try {
-        errorData = await response.json();
-      } catch (err) {
-        console.error("Error parsing error response:", err);
-      }
+    const mobileRegex = /^\d{10}$/;
+    if (!mobileRegex.test(formData.mobile)) {
       toast({
-        title: "Error",
-        description: errorData.error || "Something went wrong!",
+        title: "Invalid mobile number",
+        description: "Please enter a valid 10-digit mobile number.",
         variant: "destructive",
       });
-      setIsLoading(false);
       return;
     }
 
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you as soon as possible.",
-    });
-    setFormData({ name: "", email: "", mobile: "", subject: "", message: "" });
-  } catch (error) {
-    toast({
-      title: "Error",
-      description: "Unable to submit the form. Please try again later.",
-      variant: "destructive",
-        className: "bg-gray-900 text-red-200 border border-red-600",
-    });
-    console.error("Form submission error:", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/submit-form`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
-  
+      if (!response.ok) {
+        const errorData = await response.json();
+        toast({
+          title: "Error",
+          description: errorData.error || "Something went wrong!",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Message sent!",
         description: "We'll get back to you as soon as possible.",
@@ -92,10 +63,9 @@ const handleSubmit = async (e) => {
         title: "Error",
         description: "Unable to submit the form. Please try again later.",
         variant: "destructive",
+          className: "bg-gray-900 text-red-200 border border-red-600",
       });
       console.error("Form submission error:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -115,7 +85,7 @@ const handleSubmit = async (e) => {
     {
       icon: MapPin,
       label: "Visit Us",
-      value: "B 66/67 Digital Street, Ahemdabad City, India",
+      value: "B 66/67 Digital Street, Ahmedabad City, India",
       link: "https://maps.google.com",
     },
   ];
@@ -128,9 +98,7 @@ const handleSubmit = async (e) => {
 
   return (
     <section id="contact" className="section-padding bg-gradient-to-b from-secondary to-accent relative overflow-hidden">
-      {/* Background Animation */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_500px_at_50%_50%,#1a1a1a,transparent)] animate-pulse opacity-50" />
-
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-12">
           <span className="inline-block px-4 py-2 rounded-full bg-primary/10 text-primary text-sm mb-4">
@@ -139,13 +107,9 @@ const handleSubmit = async (e) => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary via-white to-primary">
             We'd Love to Hear from You
           </h2>
-          <p className="text-foreground/80 max-w-2xl mx-auto">
-            We're just a call or message away!
-          </p>
+          <p className="text-foreground/80 max-w-2xl mx-auto">We're just a call or message away!</p>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
           <div className="hidden lg:block space-y-8">
             {contactInfo.map((item, index) => (
               <a
@@ -164,7 +128,6 @@ const handleSubmit = async (e) => {
                 </div>
               </a>
             ))}
-
             <div className="flex justify-center gap-4 pt-4">
               {socialLinks.map((social, index) => (
                 <a
@@ -180,104 +143,63 @@ const handleSubmit = async (e) => {
               ))}
             </div>
           </div>
-
-          {/* Contact Form */}
           <div>
             <form
               onSubmit={handleSubmit}
               className="space-y-6 glass-card p-6 md:p-8 rounded-lg"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    Name
+                {["name", "email"].map((field) => (
+                  <div key={field}>
+                    <label htmlFor={field} className="block text-sm font-medium mb-2 capitalize">
+                      {field}
+                    </label>
+                    <input
+                      type={field === "email" ? "email" : "text"}
+                      id={field}
+                      value={formData[field]}
+                      onChange={handleInputChange}
+                      placeholder={`Enter your ${field}`}
+                      className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                      required
+                    />
+                  </div>
+                ))}
+              </div>
+              {["mobile", "subject", "message"].map((field, idx) => (
+                <div key={idx}>
+                  <label htmlFor={field} className="block text-sm font-medium mb-2 capitalize">
+                    {field.replace("_", " ")}
                   </label>
-                  <input
-                    type="text"
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="John Doe"
-                    className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
-                    required
-                    aria-required="true"
-                  />
+                  {field === "message" ? (
+                    <textarea
+                      id={field}
+                      value={formData[field]}
+                      onChange={handleInputChange}
+                      placeholder="Enter your message"
+                      rows={4}
+                      className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                      required
+                    />
+                  ) : (
+                    <input
+                      type={field === "mobile" ? "tel" : "text"}
+                      id={field}
+                      value={formData[field]}
+                      onChange={handleInputChange}
+                      placeholder={`Enter ${field}`}
+                      className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
+                      required
+                    />
+                  )}
                 </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="johndoe@example.com"
-                    className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="mobile" className="block text-sm font-medium mb-2">
-                  Mobile Number
-                </label>
-                <input
-                  type="tel"
-                  id="mobile"
-                  value={formData.mobile}
-                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                  placeholder="Enter 10-digit mobile number"
-                  className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
-                  required
-                  aria-required="true"
-                />
-              </div>
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g., Website Development Query"
-                  className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
-                  required
-                  aria-required="true"
-                />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-2">
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="e.g., I would like to know more about your services."
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-lg bg-secondary/50 border border-foreground/10 focus:border-primary focus:ring-1 focus:ring-primary transition-colors duration-300"
-                  required
-                  aria-required="true"
-                />
-              </div>
+              ))}
               <button
                 type="submit"
-                className={cn(
-                  "w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group",
-                  { "opacity-50 cursor-not-allowed": isLoading }
-                )}
-                disabled={isLoading}
+                className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium flex items-center justify-center gap-2 hover-glow group"
               >
-                {isLoading ? "Sending..." : (
-                  <>
-                    Send Message
-                    <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </>
-                )}
+                Send Message
+                <Send className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
             </form>
           </div>
